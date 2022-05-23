@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gogek">
+
+ <!-- mapper : DB에 쿼리문을 요청하고 결과를 돌려받는 속성파일 -->
+ <select id="gogek_list" resultType="vo.GogekVO">
+ 	select * from gogek
+ </select>
+ 
+  <!-- parameterType은 String, 기본자료형을 제외한 나머지 모든 클래스 타입에 대해서는
+  반드시 패키지명을 함께 입력해줘야 한다. ex) java.lang.Integer -->
+ <select id="gogek_list_search" resultType="vo.GogekVO" parameterType="String">
+ 	select * from gogek WHERE goaddr like '%' || #{goaddr} || '%'
+ </select> 
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

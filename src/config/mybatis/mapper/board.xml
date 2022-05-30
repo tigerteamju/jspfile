@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="b">
+
+	<!-- 페이지별 게시글 조회 -->
+		<select id="board_list" resultType="board" parameterType="java.util.HashMap">
+			select * from
+			( select rank() over(order by ref desc, step ) no, b.*
+ 			 from board b )
+			 where no between #{start} and #{end}
+		</select>
+		
+	<!-- 새 글 쓰기(댓글X) -->
+	<!-- insert, update, delete에서는 resultType을 기술할 수 없다(자동으로 정수형태를 지정) -->
+		<insert id="board_insert" parameterType="board">
+		insert into BOARD values(
+			seq_board_idx.nextVal,
+			#{name},
+			#{subject},
+			#{content},
+			#{pwd},
+			#{ip},
+			sysdate,
+			0,
+			seq_board_idx.currVal,  --ref
+			0,  --step
+			0,  --depth
+			0  --del_info
+		)
+			
+		</insert>
+		
+	<!-- 게시글 한 건 조회 -->	
+	<select id="board_one" resultType="board" parameterType="int">
+	 	select * from board where idx=#{idx}
+	</select>
+	
+	<!-- 조회수 증가 -->
+	<update id="update_readhit" parameterType="int">
+	 	update BOARD set readhit = readhit + 1
+	 	WHERE idx=#{idx}
+	</update>
+	
+	<!-- 댓글작성을 위한 step증가 
+		원글#{step}=0이니까 이미 달린 댓글step > #{step} -->
+	<update id="board_update_step" parameterType="board">
+		update BOARD set step = step + 1
+		WHERE ref=#{ref} and step > #{step}	
+	</update>
+	
+	<!-- 댓글달기 -->
+	<insert id="board_reply" parameterType="board">
+		insert into BOARD values(
+			seq_board_idx.nextval,
+			#{name},
+			#{subject},
+			#{content},
+			#{pwd},
+			#{ip},
+			sysdate,
+			0,
+			#{ref},
+			#{step},
+			#{depth},
+			0		
+		)
+	</insert>
+	
+	<!-- 게시글 삭제(된 것처럼 수정) -->
+	<update id="del_update" parameterType="board">
+		update BOARD set
+		subject=#{subject},
+		name=#{name},
+		del_info=-1
+		WHERE idx=#{idx}
+	</update>
+	
+	<!-- 전체 게시물 수 조회 -->
+	<select id="board_count" resultType="int"> 
+		select count(*) from board
+	</select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
